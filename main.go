@@ -1,25 +1,14 @@
 package main
 
 import (
+	"coffee-machine-in-go/model"
 	"fmt"
 	"strconv"
 )
 
-type Coffee struct {
-	name  string
-	water int
-	milk  int
-	beans int
-	cost  int
-}
-
 func main() {
 	// initialize coffee machine with starting values
-	coffeeMachine := NewCoffeeMachine(400, 540, 120, 9, 550)
-
-	espresso := Coffee{"Espresso", 250, 0, 16, 4}
-	latte := Coffee{"Latte", 350, 75, 20, 7}
-	cappuccino := Coffee{"Cappuccino", 200, 100, 12, 6}
+	coffeeMachine := model.NewCoffeeMachine(400, 540, 120, 9, 550)
 
 	for {
 		// prompt user for action
@@ -30,7 +19,7 @@ func main() {
 		switch action {
 		case "buy":
 			// prompt user for type of coffee to buy
-			fmt.Println("What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino, back - to main menu:")
+			fmt.Println(model.GetCoffeeMenu())
 			var choice string
 			fmt.Scan(&choice)
 
@@ -41,26 +30,13 @@ func main() {
 
 			// convert the user input to an integer
 			i, err := strconv.Atoi(choice)
-			if err != nil {
-				fmt.Println("Invalid choice")
-				continue
-			}
-
-			// select the appropriate coffee object
-			var coffee Coffee
-			switch i {
-			case 1:
-				coffee = espresso
-			case 2:
-				coffee = latte
-			case 3:
-				coffee = cappuccino
-			default:
+			if err != nil || i < 1 || i > 5 {
 				fmt.Println("Invalid choice")
 				continue
 			}
 
 			// make the coffee
+			coffee := model.CoffeeFactory(i)
 			isCoffeeMade := coffeeMachine.MakeCoffee(coffee)
 
 			if !isCoffeeMade {

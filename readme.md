@@ -28,6 +28,8 @@ The coffee machine offers the following coffee drinks:
 1. Espresso
 2. Latte
 3. Cappuccino
+4. Mocha
+5. Americano
 
 Each drink has a unique recipe and price. You can select a drink by entering its corresponding number when prompted.
 

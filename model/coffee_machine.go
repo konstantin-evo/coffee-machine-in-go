@@ -1,6 +1,8 @@
-package main
+package model
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type CoffeeMachine struct {
 	water int
@@ -20,16 +22,16 @@ func NewCoffeeMachine(water, milk, beans, cups, money int) *CoffeeMachine {
 	}
 }
 
-func (c *CoffeeMachine) MakeCoffee(coffee Coffee) bool {
-	if c.water < coffee.water {
+func (c *CoffeeMachine) MakeCoffee(coffee *Coffee) bool {
+	if c.water < coffee.Water {
 		fmt.Println("Sorry, not enough water!")
 		return false
 	}
-	if c.milk < coffee.milk {
+	if c.milk < coffee.Milk {
 		fmt.Println("Sorry, not enough milk!")
 		return false
 	}
-	if c.beans < coffee.beans {
+	if c.beans < coffee.Beans {
 		fmt.Println("Sorry, not enough coffee beans!")
 		return false
 	}
@@ -38,30 +40,21 @@ func (c *CoffeeMachine) MakeCoffee(coffee Coffee) bool {
 		return false
 	}
 
-	fmt.Printf("I have enough resources, making you a %s!\n", coffee.name)
-	c.water -= coffee.water
-	c.milk -= coffee.milk
-	c.beans -= coffee.beans
+	fmt.Printf("I have enough resources, making you a %s!\n", coffee.Name)
+	c.water -= coffee.Water
+	c.milk -= coffee.Milk
+	c.beans -= coffee.Beans
 	c.cups--
-	c.money += coffee.cost
+	c.money += coffee.Cost
 
 	return true
 }
 
-func (c *CoffeeMachine) AddWater(amount int) {
-	c.water += amount
-}
-
-func (c *CoffeeMachine) AddMilk(amount int) {
-	c.milk += amount
-}
-
-func (c *CoffeeMachine) AddBeans(amount int) {
-	c.beans += amount
-}
-
-func (c *CoffeeMachine) AddCups(amount int) {
-	c.cups += amount
+func (c *CoffeeMachine) Fill(water int, milk int, beans int, cups int) {
+	c.water += water
+	c.milk += milk
+	c.beans += beans
+	c.cups += cups
 }
 
 func (c *CoffeeMachine) TakeMoney() int {
