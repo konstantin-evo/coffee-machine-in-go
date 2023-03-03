@@ -40,13 +40,12 @@ func (c *CoffeeMachine) MakeCoffee(coffee *Coffee) bool {
 		return false
 	}
 
-	fmt.Printf("I have enough resources, making you a %s!\n", coffee.Name)
 	c.water -= coffee.Water
 	c.milk -= coffee.Milk
 	c.beans -= coffee.Beans
 	c.cups--
 	c.money += coffee.Cost
-
+	fmt.Println("Enjoy your coffee!")
 	return true
 }
 
@@ -55,6 +54,7 @@ func (c *CoffeeMachine) Fill(water int, milk int, beans int, cups int) {
 	c.milk += milk
 	c.beans += beans
 	c.cups += cups
+	fmt.Println("Supplies added successfully.")
 }
 
 func (c *CoffeeMachine) TakeMoney() int {
