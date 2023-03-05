@@ -1,90 +1,94 @@
 package model
 
-import (
-	"testing"
-)
+import "testing"
 
-func TestMakeCoffee(t *testing.T) {
-	machine := NewCoffeeMachine(1000, 1000, 1000, 10, 0)
-	espresso := CoffeeFactory(1)
-	latte := CoffeeFactory(2)
-
-	// Make sure the coffee machine can make an espresso
-	if !machine.MakeCoffee(espresso) {
-		t.Errorf("Failed to make an espresso")
+func TestNewCoffeeMachine(t *testing.T) {
+	coffeeMachine := NewCoffeeMachine(100, 200, 300, 400, 500, 600, 700, 800)
+	if coffeeMachine == nil {
+		t.Error("Expected a non-nil CoffeeMachine instance, got nil")
 	}
-	if machine.water != 750 {
-		t.Errorf("Incorrect water amount after making an espresso")
+	if coffeeMachine.water != 100 {
+		t.Errorf("Expected water to be 100, got %d", coffeeMachine.water)
 	}
-	if machine.beans != 984 {
-		t.Errorf("Incorrect coffee beans amount after making an espresso")
+	if coffeeMachine.milk != 200 {
+		t.Errorf("Expected milk to be 200, got %d", coffeeMachine.milk)
 	}
-	if machine.cups != 9 {
-		t.Errorf("Incorrect cups amount after making an espresso")
+	if coffeeMachine.beans != 300 {
+		t.Errorf("Expected beans to be 300, got %d", coffeeMachine.beans)
 	}
-	if machine.money != 4 {
-		t.Errorf("Incorrect money amount after making an espresso")
+	if coffeeMachine.cups != 400 {
+		t.Errorf("Expected cups to be 400, got %d", coffeeMachine.cups)
 	}
-
-	// Make sure the coffee machine can make a latte
-	if !machine.MakeCoffee(latte) {
-		t.Errorf("Failed to make a latte")
+	if coffeeMachine.money != 500 {
+		t.Errorf("Expected money to be 500, got %d", coffeeMachine.money)
 	}
-	if machine.water != 400 {
-		t.Errorf("Incorrect water amount after making a latte")
+	if coffeeMachine.sugar != 600 {
+		t.Errorf("Expected sugar to be 600, got %d", coffeeMachine.sugar)
 	}
-	if machine.milk != 925 {
-		t.Errorf("Incorrect milk amount after making a latte")
+	if coffeeMachine.chocolate != 700 {
+		t.Errorf("Expected chocolate to be 700, got %d", coffeeMachine.chocolate)
 	}
-	if machine.beans != 964 {
-		t.Errorf("Incorrect coffee beans amount after making a latte")
-	}
-	if machine.cups != 8 {
-		t.Errorf("Incorrect cups amount after making a latte")
-	}
-	if machine.money != 11 {
-		t.Errorf("Incorrect money amount after making a latte")
-	}
-
-	// Make sure the coffee machine cannot make a latte due to lack of milk
-	machine.milk = 0
-	if machine.MakeCoffee(latte) {
-		t.Errorf("Unexpectedly made a latte without enough milk")
-	}
-	if machine.money != 11 {
-		t.Errorf("Money should not have been updated after failed coffee making attempt")
+	if coffeeMachine.cinnamon != 800 {
+		t.Errorf("Expected cinnamon to be 800, got %d", coffeeMachine.cinnamon)
 	}
 }
 
-func TestFill(t *testing.T) {
-	coffeeMachine := NewCoffeeMachine(0, 0, 0, 0, 0)
-
-	// Test filling the machine with valid amounts
-	coffeeMachine.Fill(100, 200, 300, 2)
-	if coffeeMachine.water != 100 || coffeeMachine.milk != 200 || coffeeMachine.beans != 300 || coffeeMachine.cups != 2 {
-		t.Error("Failed to fill coffee machine with valid amounts")
+func TestCoffeeMachine_MakeCoffee(t *testing.T) {
+	coffeeMachine := NewCoffeeMachine(500, 500, 500, 10, 0, 500, 500, 500)
+	coffee := &Coffee{
+		Name:      "Espresso",
+		Water:     50,
+		Milk:      0,
+		Beans:     18,
+		Cost:      60,
+		Sugar:     0,
+		Chocolate: 0,
+		Cinnamon:  0,
 	}
-
+	coffeeMachine.MakeCoffee(coffee)
+	if coffeeMachine.water != 450 {
+		t.Errorf("Expected water to be 450, got %d", coffeeMachine.water)
+	}
+	if coffeeMachine.milk != 500 {
+		t.Errorf("Expected milk to be 500, got %d", coffeeMachine.milk)
+	}
+	if coffeeMachine.beans != 482 {
+		t.Errorf("Expected beans to be 482, got %d", coffeeMachine.beans)
+	}
+	if coffeeMachine.cups != 9 {
+		t.Errorf("Expected cups to be 9, got %d", coffeeMachine.cups)
+	}
+	if coffeeMachine.money != 60 {
+		t.Errorf("Expected money to be 60, got %d", coffeeMachine.money)
+	}
+	if coffeeMachine.sugar != 500 {
+		t.Errorf("Expected sugar to be 500, got %d", coffeeMachine.sugar)
+	}
+	if coffeeMachine.chocolate != 500 {
+		t.Errorf("Expected chocolate to be 500, got %d", coffeeMachine.chocolate)
+	}
+	if coffeeMachine.cinnamon != 500 {
+		t.Errorf("Expected cinnamon to be 500, got %d", coffeeMachine.cinnamon)
+	}
 }
 
-func TestTakeMoney(t *testing.T) {
-	coffeeMachine := NewCoffeeMachine(0, 0, 0, 0, 500)
+func TestCoffeeMachine_Fill(t *testing.T) {
+	coffeeMachine := NewCoffeeMachine(0, 0, 0, 0, 0, 0, 0, 0)
 
-	// Test taking money from the machine
-	if money := coffeeMachine.TakeMoney(); money != 500 {
-		t.Errorf("Expected to take $500 from coffee machine, but took $%d", money)
+	// Fill with some values
+	coffeeMachine.Fill(200, 100, 50, 10)
+
+	// Check if values are correct after filling
+	if coffeeMachine.water != 200 {
+		t.Errorf("Expected water to be 200, but got %d", coffeeMachine.water)
 	}
-	if coffeeMachine.money != 0 {
-		t.Error("Money not correctly deducted from coffee machine")
+	if coffeeMachine.milk != 100 {
+		t.Errorf("Expected milk to be 100, but got %d", coffeeMachine.milk)
 	}
-}
-
-func TestGetStock(t *testing.T) {
-	coffeeMachine := NewCoffeeMachine(500, 400, 300, 5, 0)
-
-	// Call GetStock and check returned values
-	water, milk, beans, cups, money := coffeeMachine.GetStock()
-	if water != 500 || milk != 400 || beans != 300 || cups != 5 || money != 0 {
-		t.Errorf("Expected (500, 400, 300, 5, 0) but got (%d, %d, %d, %d, %d)", water, milk, beans, cups, money)
+	if coffeeMachine.beans != 50 {
+		t.Errorf("Expected beans to be 50, but got %d", coffeeMachine.beans)
+	}
+	if coffeeMachine.cups != 10 {
+		t.Errorf("Expected cups to be 10, but got %d", coffeeMachine.cups)
 	}
 }

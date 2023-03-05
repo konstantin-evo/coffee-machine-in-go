@@ -13,11 +13,14 @@ const (
 )
 
 type Coffee struct {
-	Name  CoffeeName
-	Water int
-	Milk  int
-	Beans int
-	Cost  int
+	Name      CoffeeName
+	Water     int
+	Milk      int
+	Beans     int
+	Cost      int
+	Sugar     int
+	Chocolate int
+	Cinnamon  int
 }
 
 func CoffeeFactory(coffeeNumber int) *Coffee {
@@ -35,6 +38,21 @@ func CoffeeFactory(coffeeNumber int) *Coffee {
 	default:
 		return nil
 	}
+}
+
+func AddSugar(c *Coffee, amount int) *Coffee {
+	c.Sugar = amount
+	return c
+}
+
+func AddChocolate(c *Coffee) *Coffee {
+	c.Chocolate = 1
+	return c
+}
+
+func AddCinnamon(c *Coffee) *Coffee {
+	c.Cinnamon = 1
+	return c
 }
 
 func GetCoffeeMenu() string {

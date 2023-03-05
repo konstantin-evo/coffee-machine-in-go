@@ -32,14 +32,10 @@ The coffee machine offers the following coffee drinks:
 5. Americano
 
 Each drink has a unique recipe and price. You can select a drink by entering its corresponding number when prompted.
+After selecting a drink, you can customize it by adding sugar, chocolate or cinnamon.
 
 #### Simulating the Coffee-making Process
 
 After you have selected your drink and customized it, the program will simulate the coffee-making process. This includes
 grinding the coffee beans, heating the water, and frothing the milk. Once the coffee is ready, the program will display
 a message indicating that your drink is ready to be served.
-
-After selecting a drink, you can customize it by adding milk and sugar. You can add milk by entering the number of
-milliliters you want to add, and you can add sugar by entering the number of teaspoons you want to add. The program will
-adjust the recipe and price accordingly.
-

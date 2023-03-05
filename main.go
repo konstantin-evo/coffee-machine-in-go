@@ -23,7 +23,7 @@ const (
 
 func main() {
 	// initialize coffee machine with starting values
-	coffeeMachine := model.NewCoffeeMachine(400, 540, 120, 9, 550)
+	coffeeMachine := model.NewCoffeeMachine(400, 540, 120, 9, 550, 500, 100, 100)
 
 	for {
 		// prompt user for action
@@ -73,8 +73,38 @@ func handleBuyAction(coffeeMachine *model.CoffeeMachine) {
 		return
 	}
 
-	// make the coffee
+	// prompt user for decorations
+	fmt.Println("Do you want to add decorations? (1 - sugar, 2 - chocolate, 3 - cinnamon):")
+	decorationsChoice, err := scanInt()
+	if err != nil || decorationsChoice < 0 || decorationsChoice > 3 {
+		fmt.Printf("Error: %v. Please try again.\n", ErrInvalidInput)
+		return
+	}
+
+	// set the sugar to 0 initially
+	sugar := 0
+
+	// prompt user for level of sugar addition
+	if decorationsChoice == 1 {
+		fmt.Println("Choose level of sugar addition (1 - low, 2 - medium, 3 - high):")
+		sugarLevelChoice, err := scanInt()
+		if err != nil || sugarLevelChoice < 1 || sugarLevelChoice > 3 {
+			fmt.Printf("Error: %v. Please try again.\n", ErrInvalidInput)
+			return
+		}
+		sugar = sugarLevelChoice
+	}
+
+	// make the coffee with decorations
 	coffee := model.CoffeeFactory(i)
+	if decorationsChoice == 1 {
+		coffee = model.AddSugar(coffee, sugar)
+	} else if decorationsChoice == 2 {
+		coffee = model.AddChocolate(coffee)
+	} else if decorationsChoice == 3 {
+		coffee = model.AddCinnamon(coffee)
+	}
+
 	isCoffeeMade := coffeeMachine.MakeCoffee(coffee)
 
 	if !isCoffeeMade {
