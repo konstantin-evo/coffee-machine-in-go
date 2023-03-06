@@ -1,126 +1,48 @@
 package main
 
 import (
+	"coffee-machine-in-go/model"
+	"errors"
 	"fmt"
 	"strconv"
 )
 
-type Coffee struct {
-	name  string
-	water int
-	milk  int
-	beans int
-	cost  int
-}
+const (
+	BuyAction       = "buy"
+	FillAction      = "fill"
+	TakeAction      = "take"
+	RemainingAction = "remaining"
+	ExitAction      = "exit"
+)
+
+const (
+	ErrInvalidChoice = "invalid choice"
+	ErrFailedToScan  = "failed to scan input"
+	ErrInvalidInput  = "invalid input"
+)
 
 func main() {
 	// initialize coffee machine with starting values
-	water := 400
-	milk := 540
-	beans := 120
-	cups := 9
-	money := 550
-
-	espresso := Coffee{"Espresso", 250, 0, 16, 4}
-	latte := Coffee{"Latte", 350, 75, 20, 7}
-	cappuccino := Coffee{"Cappuccino", 200, 100, 12, 6}
+	coffeeMachine := model.NewCoffeeMachine(400, 540, 120, 9, 550, 500, 100, 100)
 
 	for {
 		// prompt user for action
-		fmt.Println("\nWrite action (buy, fill, take, remaining, exit):")
-		var action string
-		fmt.Scan(&action)
+		action, err := promptForAction()
+		if err != nil {
+			fmt.Printf("Error: %v. Please try again.\n", err)
+			continue
+		}
 
 		switch action {
-		case "buy":
-			// prompt user for type of coffee to buy
-			fmt.Println("What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino, back - to main menu:")
-			var choice string
-			fmt.Scan(&choice)
-
-			if choice == "back" {
-				// return to main menu
-				continue
-			}
-
-			// convert the user input to an integer
-			i, err := strconv.Atoi(choice)
-			if err != nil {
-				fmt.Println("Invalid choice")
-				continue
-			}
-
-			// select the appropriate coffee object
-			var coffee Coffee
-			switch i {
-			case 1:
-				coffee = espresso
-			case 2:
-				coffee = latte
-			case 3:
-				coffee = cappuccino
-			default:
-				fmt.Println("Invalid choice")
-				continue
-			}
-
-			// check if there are enough ingredients to make the coffee
-			if water < coffee.water {
-				fmt.Println("Sorry, not enough water!")
-				continue
-			} else if milk < coffee.milk {
-				fmt.Println("Sorry, not enough milk!")
-				continue
-			} else if beans < coffee.beans {
-				fmt.Println("Sorry, not enough coffee beans!")
-				continue
-			} else if cups < 1 {
-				fmt.Println("Sorry, not enough disposable cups!")
-				continue
-			}
-
-			// make the coffee
-			fmt.Printf("I have enough resources, making you a %s!\n", coffee.name)
-			water -= coffee.water
-			milk -= coffee.milk
-			beans -= coffee.beans
-			cups -= 1
-			money += coffee.cost
-
-		case "fill":
-			// prompt user for amounts to fill
-			fmt.Println("Write how many ml of water you want to add:")
-			var addWater int
-			fmt.Scan(&addWater)
-
-			fmt.Println("Write how many ml of milk you want to add:")
-			var addMilk int
-			fmt.Scan(&addMilk)
-
-			fmt.Println("Write how many grams of coffee beans you want to add:")
-			var addBeans int
-			fmt.Scan(&addBeans)
-
-			fmt.Println("Write how many disposable cups you want to add:")
-			var addCups int
-			fmt.Scan(&addCups)
-
-			// add supplies to coffee machine
-			water += addWater
-			milk += addMilk
-			beans += addBeans
-			cups += addCups
-
-		case "take":
-			// give the money to the user and reset the coffee machine's money
-			fmt.Printf("I gave you $%d\n", money)
-			money = 0
-
-		case "remaining":
-			// display remaining stock levels
-			fmt.Printf("\nThe coffee machine has:\n%d ml of water\n%d ml of milk\n%d g of coffee beans\n%d disposable cups\n$%d of money\n", water, milk, beans, cups, money)
-
-		case "exit":
+		case BuyAction:
+			handleBuyAction(coffeeMachine)
+		case FillAction:
+			handleFillAction(coffeeMachine)
+		case TakeAction:
+			handleTakeAction(coffeeMachine)
+		case RemainingAction:
+			handleRemainingAction(coffeeMachine)
+		case ExitAction:
 			// exit the program
 			return
 
@@ -129,4 +51,143 @@ func main() {
 			continue
 		}
 	}
+}
+
+func handleBuyAction(coffeeMachine *model.CoffeeMachine) {
+	// prompt user for type of coffee to buy
+	choice, err := promptForCoffeeChoice()
+	if err != nil {
+		fmt.Printf("Error: %v. Please try again.\n", err)
+		return
+	}
+
+	if choice == "back" {
+		// return to main menu
+		return
+	}
+
+	// convert the user input to an integer
+	i, err := strconv.Atoi(choice)
+	if err != nil || i < 1 || i > 5 {
+		fmt.Println(ErrInvalidChoice)
+		return
+	}
+
+	// prompt user for decorations
+	fmt.Println("Do you want to add decorations? (1 - sugar, 2 - chocolate, 3 - cinnamon):")
+	decorationsChoice, err := scanInt()
+	if err != nil || decorationsChoice < 0 || decorationsChoice > 3 {
+		fmt.Printf("Error: %v. Please try again.\n", ErrInvalidInput)
+		return
+	}
+
+	// set the sugar to 0 initially
+	sugar := 0
+
+	// prompt user for level of sugar addition
+	if decorationsChoice == 1 {
+		fmt.Println("Choose level of sugar addition (1 - low, 2 - medium, 3 - high):")
+		sugarLevelChoice, err := scanInt()
+		if err != nil || sugarLevelChoice < 1 || sugarLevelChoice > 3 {
+			fmt.Printf("Error: %v. Please try again.\n", ErrInvalidInput)
+			return
+		}
+		sugar = sugarLevelChoice
+	}
+
+	// make the coffee with decorations
+	coffee := model.CoffeeFactory(i)
+	if decorationsChoice == 1 {
+		coffee = model.AddSugar(coffee, sugar)
+	} else if decorationsChoice == 2 {
+		coffee = model.AddChocolate(coffee)
+	} else if decorationsChoice == 3 {
+		coffee = model.AddCinnamon(coffee)
+	}
+
+	isCoffeeMade := coffeeMachine.MakeCoffee(coffee)
+
+	if !isCoffeeMade {
+		return
+	}
+}
+
+func handleFillAction(coffeeMachine *model.CoffeeMachine) {
+	addWater, addMilk, addBeans, addCups := promptForAddingSupplies()
+	// add supplies to coffee machine
+	coffeeMachine.Fill(addWater, addMilk, addBeans, addCups)
+}
+
+func handleTakeAction(coffeeMachine *model.CoffeeMachine) {
+	// give the money to the user and reset the coffee machine's money
+	coffeeMachine.TakeMoney()
+}
+
+func handleRemainingAction(coffeeMachine *model.CoffeeMachine) {
+	// display remaining stock levels
+	coffeeMachine.GetStock()
+}
+
+func promptForAction() (string, error) {
+	fmt.Println("\nWrite action (buy, fill, take, remaining, exit):")
+	var action string
+	_, err := fmt.Scan(&action)
+	if err != nil {
+		return "", errors.New(ErrFailedToScan)
+	}
+	return action, nil
+}
+
+func promptForCoffeeChoice() (string, error) {
+	fmt.Println(model.GetCoffeeMenu())
+	var choice string
+	_, err := fmt.Scan(&choice)
+	if err != nil {
+		return "", errors.New(ErrFailedToScan)
+	}
+	return choice, nil
+}
+
+func promptForAddingSupplies() (int, int, int, int) {
+	fmt.Println("Write how many ml of water you want to add:")
+	addWater, err := scanInt()
+	if err != nil {
+		fmt.Printf("Error: %v. Please try again.\n", err)
+		return promptForAddingSupplies()
+	}
+
+	fmt.Println("Write how many ml of milk you want to add:")
+	addMilk, err := scanInt()
+	if err != nil {
+		fmt.Printf("Error: %v. Please try again.\n", err)
+		return promptForAddingSupplies()
+	}
+
+	fmt.Println("Write how many grams of coffee beans you want to add:")
+	addBeans, err := scanInt()
+	if err != nil {
+		fmt.Printf("Error: %v. Please try again.\n", err)
+		return promptForAddingSupplies()
+	}
+
+	fmt.Println("Write how many disposable cups you want to add:")
+	addCups, err := scanInt()
+	if err != nil {
+		fmt.Printf("Error: %v. Please try again.\n", err)
+		return promptForAddingSupplies()
+	}
+
+	return addWater, addMilk, addBeans, addCups
+}
+
+func scanInt() (int, error) {
+	var n int
+	_, err := fmt.Scan(&n)
+	if err != nil {
+		return 0, errors.New(ErrFailedToScan)
+	}
+	if n < 0 {
+		return 0, errors.New(ErrInvalidInput)
+	}
+	return n, nil
 }
